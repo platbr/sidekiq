@@ -391,15 +391,7 @@ module Sidekiq
       # Unwrap known wrappers so they show up in a human-friendly manner in the Web UI
       @display_args ||= if klass == "ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper" || klass == "Sidekiq::ActiveJob::Wrapper"
         job_args = self["wrapped"] ? deserialize_argument(args[0]["arguments"]) : []
-        if (self["wrapped"] || args[0]) == "ActionMailer::DeliveryJob"
-          # remove MailerClass, mailer_method and 'deliver_now'
-          job_args.drop(3)
-        elsif (self["wrapped"] || args[0]) == "ActionMailer::MailDeliveryJob"
-          # remove MailerClass, mailer_method and 'deliver_now'
-          job_args.drop(3).first.values_at("params", "args")
-        else
-          job_args
-        end
+        job_args
       else
         if self["encrypt"]
           # no point in showing 150+ bytes of random garbage
