@@ -388,7 +388,17 @@ module Sidekiq
     end
 
     def display_args
-      args
+      # Unwrap known wrappers so they show up in a human-friendly manner in the Web UI
+      @display_args ||= if klass == "ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper" || klass == "Sidekiq::ActiveJob::Wrapper"
+        job_args = self["wrapped"] ? deserialize_argument(args[0]["arguments"]) : []
+        job_args
+      else
+        if self["encrypt"]
+          # no point in showing 150+ bytes of random garbage
+          args[-1] = "[encrypted data]"
+        end
+        args
+      end
     end
 
     def args
